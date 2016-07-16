@@ -75,6 +75,9 @@ interface swcapiInterface {
     //
     // Obviously, this won't work in online access mode, since there won't be a refresh
     // token.
-  
-
+    //
+    // CAVEAT: currently, this will remove ALL access tokens for your application,
+    // not just the one for the single user owning that refresh token.
+    // After next sync, this will most probably work properly.
+    
 }
