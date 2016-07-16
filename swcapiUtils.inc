@@ -26,7 +26,7 @@ define('API_TIMEOFFSET',         912668400);
 
 
 
-class swcapi implments swcapiInterface {
+class swcapi implements swcapiInterface {
   protected static $errorCode;
   protected static $errorText;
 
