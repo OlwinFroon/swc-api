@@ -57,12 +57,6 @@ class swcapi implements swcapiInterface {
 
 
 
-  public static function init() {
-    // dummy function to have the class loaded at all, will disappear as soon as possible
-  }
-
-
-
   // try and authorize a set of API permissions for the character currently logged in 
   public static function authorize(array $permissions, $state = 'auth', $accessmode = 'offline') {
     // $permissions: array of valid API permissions (like character_read, character_stats etc)
@@ -87,12 +81,12 @@ class swcapi implements swcapiInterface {
     // state (always): the same one you sent
     // code (optional): authorization code for requesting an access token
     // error (optional): error code
-	}
+  }
 
 
 
   // Request an access token after successful authorization
-	public static function requestAccessToken($authcode, $accessmode = 'offline') {
+  public static function requestAccessToken($authcode, $accessmode = 'offline') {
     // $authcode: what was sent as "code" via the SWC consent screen
     // $accessmode:
     // - 'online' = one time permission, expires with the access token
@@ -111,7 +105,7 @@ class swcapi implements swcapiInterface {
 		  'client_secret' => API_CLIENTSECRET,
     );
 
-		$response = self::apiRequest(API_PATH_TOKEN, $data, 'POST', 'JSON');
+    $response = self::apiRequest(API_PATH_TOKEN, $data, 'POST', 'JSON');
 
     // the request itself might've failed
     // a proper error message should already be in place
@@ -121,7 +115,7 @@ class swcapi implements swcapiInterface {
     $result = (object) json_decode($response);
 
     // the request worked, but something else was wrong
-		if (isset($result->error)) return self::setError(990, 'requestAccessToken: ' . $result->error);
+    if (isset($result->error)) return self::setError(990, 'requestAccessToken: ' . $result->error);
 
     $ret['accesstoken']  = (isset($result->access_token)  ? $result->access_token        : '');
     $ret['refreshtoken'] = (isset($result->refresh_token) ? $result->refresh_token       : '');
@@ -152,36 +146,36 @@ class swcapi implements swcapiInterface {
 
     // only accepting POST and GET methods ATM
     if ($method == 'POST') {
-			$head[] = 'content-type: application/x-www-form-urlencoded';
-			$head[] = 'content-length: ' . strlen($body);
+	$head[] = 'content-type: application/x-www-form-urlencoded';
+	$head[] = 'content-length: ' . strlen($body);
     } elseif ($method == 'GET') {
- 	  	if ($body <> '') $uri .= '?' . $body;
-			$head[] = 'content-type: utf-8; charset=utf-8';
+ 	if ($body <> '') $uri .= '?' . $body;
+	$head[] = 'content-type: utf-8; charset=utf-8';
     } else {
       return self::setError(802, 'apiRequest: Invalid send method [' . $method . ']');
     }
 
     // set up curl request 
     set_time_limit(300);
-		$curl = curl_init();
+    $curl = curl_init();
 
-		if ($method == 'POST') {
-  		curl_setopt($curl, CURLOPT_POST, TRUE);
-    	curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
+    if ($method == 'POST') {
+      curl_setopt($curl, CURLOPT_POST, TRUE);
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $body);
     }
-  	curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30);
-  	curl_setopt($curl, CURLOPT_HEADER, TRUE);
- 		curl_setopt($curl, CURLOPT_HTTPHEADER, $head);
-  	curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 30);
+    curl_setopt($curl, CURLOPT_HEADER, TRUE);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $head);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
 
     // you might think that 200 seconds for a response seems awfully long,
     // but sometimes it DOES take that long
-   	curl_setopt($curl, CURLOPT_TIMEOUT, 200);
-   	curl_setopt($curl, CURLOPT_URL, $uri);
-   	curl_setopt($curl, CURLOPT_VERBOSE, TRUE);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 200);
+    curl_setopt($curl, CURLOPT_URL, $uri);
+    curl_setopt($curl, CURLOPT_VERBOSE, TRUE);
 
     // execute the curl request
-  	$response    = curl_exec($curl);
+    $response    = curl_exec($curl);
 
     // chop up the response into header ...
     $headerSize  = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
@@ -189,8 +183,8 @@ class swcapi implements swcapiInterface {
 
     // ... and content
     $curlContent = substr($response, $headerSize);
- 		$curlInfo    = curl_getinfo($curl);
- 		curl_close($curl);
+    $curlInfo    = curl_getinfo($curl);
+    curl_close($curl);
 
     // sometimes there's no response at all, which we'll handle as a fictional response code -1
     $curlHttpCode    = (isset($curlInfo['http_code'])    ? $curlInfo['http_code']    : -1);
