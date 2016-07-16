@@ -28,8 +28,9 @@ interface swcapiInterface {
 
 
 
-  public static function authorize(array $permissions, $state, $accessmode) {
+  public static function authorize(array $permissions, $state, $accessmode);
   // Tries to authorize a set of API permissions for the currently logged-in character.
+  // Returns TRUE if the attempt was successful, FALSE otherwise.
   //
   // $permissions (string array): the API permissions ('character_read',
   // 'character_stats', ...) your application wishes to be granted by the user.
@@ -51,13 +52,16 @@ interface swcapiInterface {
 
 
 
-  // Request an access token after successful authorization
-	public static function requestAccessToken($authcode, $accessmode = 'offline') {
-    // $authcode: what was sent as "code" via the SWC consent screen
-    // $accessmode:
-    // - 'online' = one time permission, expires with the access token
-    // - 'offline' = permission will persist, access token can be refreshed
-    // returns an array with access token, refresh token (if applicable), scope
-    // and unix expiration timestamp if everything went well, FALSE otherwise
+  public static function requestAccessToken($authcode, $accessmode);
+  // Tries to request an access token after successful authorization.
+  // Returns an array with access token, refresh token, scope and unix expiration
+  // timestamp if everything went well, FALSE otherwise.
+  //
+  // $authcode: what was sent as "code" via the SWC consent screen
+  //
+  // $accessmode:
+  // - 'online' = one time permission, expires with the access token
+  // - 'offline' = permission will persist, access token can be refreshed
+  // If omitted, accesmode defaults to 'offline'.
 
-}
+
