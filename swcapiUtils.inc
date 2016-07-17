@@ -2,6 +2,7 @@
 // custom/api/swcapiUtils.inc: Technical layer for the SWC API
 // TFMS (c) 2016 Olwin Froon, Trade Federation
 ////////////////////////////////////////////////////////////////////////////////
+// of 160717: refreshAccessToken
 // of 160716: revokeAccess
 // of 160715: minor fix
 // of 160714: initial spin-off
@@ -54,12 +55,32 @@ class swcapi implements swcapiInterface {
 
 
 
+  public static function getErrorText($clear = FALSE) {
+    // Returns the text message part of the recent error,
+    // an empty string if nothing went wrong.
+    //
+    // $clear (optional): TRUE will reset the error marker afterwards.
+    // If omitted, $clear defaults to FALSE.
+
+    $ret = self::$errorText;
+    if ($clear) self::clearError();
+    return $ret;
+  }
+
+
+
   public static function hasError() {
     // Returns TRUE if the recent API operation caused an error.
 
     $ret = FALSE;
     if (isset(self::$errorCode)) $ret = (self::$errorCode !== 0);
     return $ret;
+  }
+
+
+
+  public static function init() {
+    // dummy function to have the class loaded at all, will disappear as soon as possible
   }
 
 
@@ -109,6 +130,43 @@ class swcapi implements swcapiInterface {
 
 
 
+	public static function refreshAccessToken($refreshtoken) {
+    // Tries to refresh an access token when it's expired.
+    // Returns an array with access token, refresh token, scope and unix expiration
+    // timestamp if everything went well, FALSE otherwise.
+    //
+    // $refreshtoken: current valid refreshtoken
+
+    self::clearError();
+
+		$data = array (
+ 		  'grant_type'    => 'refresh_token',
+	 	  'refresh_token' => $refreshtoken,
+      'client_id'     => API_CLIENTID,
+      'client_secret' => API_CLIENTSECRET,
+    );
+
+    $response = self::apiRequest(API_PATH_TOKEN, $data, 'POST', 'JSON');
+
+    // the request itself might've failed
+    // a proper error message should already be in place
+    if ($response === FALSE) return FALSE;
+
+    // apparently not, so decode it
+    $result = (object) json_decode($response);
+
+    // the request worked, but something else was wrong
+    if (isset($result->error)) return self::setError(991, 'swcapi::refreshAccessToken: ' . $result->error);
+
+    $ret['accesstoken']  = (isset($result->access_token)  ? $result->access_token        : '');
+    $ret['refreshtoken'] = (isset($result->refresh_token) ? $result->refresh_token       : '');
+    $ret['scope']        = (isset($result->scope)         ? $result->scope               : '');
+    $ret['expires']      = (isset($result->expires_in)    ? time() + $result->expires_in : 0);
+    return $ret;
+	}
+
+
+
   public static function requestAccessToken($authcode, $accessmode = 'offline') {
     // Tries to request an access token after successful authorization.
     // Returns an array with access token, refresh token, scope and unix expiration
@@ -124,9 +182,9 @@ class swcapi implements swcapiInterface {
     self::clearError();
 
     $data = array (
+      'grant_type'    => 'authorization_code',
       'code'          => $authcode,
       'redirect_uri'  => API_CLIENTINTERFACE,
-      'grant_type'    => 'authorization_code',
       'access_type'   => $accessmode,
       'client_id'     => API_CLIENTID,
       'client_secret' => API_CLIENTSECRET,
