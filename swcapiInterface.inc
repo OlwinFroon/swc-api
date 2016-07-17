@@ -2,6 +2,7 @@
 // custom/api/swcapiInterface.inc: Technical layer for the SWC API
 // TFMS (c) 2016 Olwin Froon, Trade Federation
 ////////////////////////////////////////////////////////////////////////////////
+// of 160717: refreshAccessToken
 // of 160716: revokeAccess
 // of 160715: initial spin-off
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,8 +12,8 @@
 interface swcapiInterface {
 
   public static function getError($clear);
-    // Returns a string describing the nature of the recent error,
-    // an empty string if nothing went wrong.
+    // Returns a string consisting of error code and text, which describes the nature
+    // of the recent error, an empty string if nothing went wrong.
     //
     // $clear (optional): TRUE will reset the error marker afterwards.
     // If omitted, $clear defaults to FALSE.
@@ -21,6 +22,15 @@ interface swcapiInterface {
 
   public static function getErrorCode();
     // Returns a numerical error code if something went wrong, a zero otherwise.
+
+
+
+  public static function getErrorText($clear);
+    // Returns the text message part of the recent error,
+    // an empty string if nothing went wrong.
+    //
+    // $clear (optional): TRUE will reset the error marker afterwards.
+    // If omitted, $clear defaults to FALSE.
 
 
 
@@ -50,6 +60,15 @@ interface swcapiInterface {
     // CAVEAT: currently, the $permissions array can't be empty. If you wish to
     // disable API access for your user, request a single pointless permission
     // (e.g. 'character_stats' which wouldn't work without 'character_read').
+
+
+
+	public static function refreshAccessToken($refreshtoken);
+    // Tries to refresh an access token when it's expired.
+    // Returns an array with access token, refresh token, scope and unix expiration
+    // timestamp if everything went well, FALSE otherwise.
+    //
+    // $refreshtoken: current valid refreshtoken
 
 
 
