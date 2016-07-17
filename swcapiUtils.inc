@@ -79,12 +79,6 @@ class swcapi implements swcapiInterface {
 
 
 
-  public static function init() {
-    // dummy function to have the class loaded at all, will disappear as soon as possible
-  }
-
-
-
   public static function authorize(array $permissions, $state = 'auth', $accessmode = 'offline') {
     // Tries to authorize a set of API permissions for the currently logged-in character.
     // Returns TRUE if the attempt was successful, FALSE otherwise.
@@ -130,7 +124,7 @@ class swcapi implements swcapiInterface {
 
 
 
-	public static function refreshAccessToken($refreshtoken) {
+  public static function refreshAccessToken($refreshtoken) {
     // Tries to refresh an access token when it's expired.
     // Returns an array with access token, refresh token, scope and unix expiration
     // timestamp if everything went well, FALSE otherwise.
@@ -139,9 +133,9 @@ class swcapi implements swcapiInterface {
 
     self::clearError();
 
-		$data = array (
- 		  'grant_type'    => 'refresh_token',
-	 	  'refresh_token' => $refreshtoken,
+    $data = array (
+      'grant_type'    => 'refresh_token',
+      'refresh_token' => $refreshtoken,
       'client_id'     => API_CLIENTID,
       'client_secret' => API_CLIENTSECRET,
     );
@@ -163,7 +157,7 @@ class swcapi implements swcapiInterface {
     $ret['scope']        = (isset($result->scope)         ? $result->scope               : '');
     $ret['expires']      = (isset($result->expires_in)    ? time() + $result->expires_in : 0);
     return $ret;
-	}
+  }
 
 
 
